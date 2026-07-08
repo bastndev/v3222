@@ -28,4 +28,4 @@ import { something } from "322";
 
 ## License
 
-MIT &copy; [Gohit X (bastndev)](https://gohit.xyz/package/322)
+MIT
