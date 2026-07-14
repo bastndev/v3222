@@ -1,5 +1,5 @@
 {
-  "name": "322",
+  "name": "3222",
   "version": "0.0.0",
   "description": "",
   "type": "module",
@@ -18,9 +18,7 @@
       }
     }
   },
-  "files": [
-    "dist"
-  ],
+  "files": ["dist"],
   "sideEffects": false,
   "scripts": {
     "build": "tsup",
