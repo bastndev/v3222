@@ -29,13 +29,13 @@
   "keywords": [],
   "author": "Gohit X (bastndev)",
   "license": "MIT",
-  "homepage": "https://gohit.xyz/package/322",
+  "homepage": "https://gohit.xyz/package/3222",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bastndev/322.git"
+    "url": "git+https://github.com/bastndev/3222.git"
   },
   "bugs": {
-    "url": "https://github.com/bastndev/322/issues"
+    "url": "https://github.com/bastndev/3222/issues"
   },
   "publishConfig": {
     "access": "public"
