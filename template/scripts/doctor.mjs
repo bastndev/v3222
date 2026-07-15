@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs'
+import { existsSync, readdirSync } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
@@ -55,8 +55,9 @@ addCheck(
   'Android Build Tools 35+',
   Boolean(
     sdkRoot &&
-    ['35.0.0', '35.0.1', '36.0.0'].some((version) =>
-      existsSync(path.join(sdkRoot, 'build-tools', version)),
+    existsSync(path.join(sdkRoot, 'build-tools')) &&
+    readdirSync(path.join(sdkRoot, 'build-tools')).some(
+      (version) => Number.parseInt(version.split('.')[0] ?? '', 10) >= 35,
     ),
   ),
   sdkRoot ? path.join(sdkRoot, 'build-tools') : 'not found',

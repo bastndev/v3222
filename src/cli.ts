@@ -131,7 +131,7 @@ async function main(): Promise<void> {
 Created ${result.displayName} at ${result.projectDirectory}
 
 Next steps:
-  cd ${result.projectName}
+  cd ${JSON.stringify(result.projectDirectory)}
   ${runner} doctor
   ${runner} dev
 

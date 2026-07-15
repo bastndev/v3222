@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
@@ -35,6 +35,13 @@ run(gradle, ['assembleRelease', 'bundleRelease'], androidRoot, {
 })
 
 const signingFile = path.join(androidRoot, 'keystore.properties')
+const signingKeys = ['storeFile', 'storePassword', 'keyAlias', 'keyPassword']
+const signingContent = existsSync(signingFile)
+  ? readFileSync(signingFile, 'utf8')
+  : ''
+const signingConfigured = signingKeys.every((key) =>
+  new RegExp(`^${key}\\s*=\\s*\\S+`, 'mu').test(signingContent),
+)
 const releaseOutput = path.join(
   androidRoot,
   'app',
@@ -43,10 +50,10 @@ const releaseOutput = path.join(
   'apk',
   'release',
 )
-const apkName = existsSync(path.join(releaseOutput, 'app-release.apk'))
+const apkName = signingConfigured
   ? 'app-release.apk'
   : 'app-release-unsigned.apk'
-const signingStatus = existsSync(signingFile)
+const signingStatus = signingConfigured
   ? 'Release signing was configured through android/keystore.properties.'
   : 'Artifacts are unsigned. Configure android/keystore.properties before uploading to Google Play.'
 

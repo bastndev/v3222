@@ -58,9 +58,8 @@ gitignored `android/keystore.properties` workflow for Play Store uploads.
 
 This experiment pins Sparkling `2.1.0-rc.33` because the stable `2.0.1` CLI does not include the
 required `dev` command. The generated Android project targets API 35 and upgrades the official
-native shell to Android Gradle Plugin 8.6.1, the minimum supported line for that API level.
-Fresco is lifted to 3.7.0 so the generated release does not retain the official template's
-non-compliant x86_64 binaries.
+native shell to Android Gradle Plugin 8.10.1 with Kotlin 2.2. Fresco is lifted to 3.7.0 so the
+generated release does not retain the official template's non-compliant x86_64 binaries.
 
 When the final generator name is chosen, publishing it as `create-<name>` will also enable the
 standard `npm create <name>` command.

@@ -94,7 +94,8 @@ export function detectPackageManager(
   userAgent: string | undefined = process.env['npm_config_user_agent'],
 ): PackageManager {
   const candidate = userAgent?.split(/[\s/]/u)[0];
-  if (candidate === 'bun' || candidate === 'pnpm' || candidate === 'yarn') {
+  if (candidate === 'bun' || candidate === 'bunx') return 'bun';
+  if (candidate === 'pnpm' || candidate === 'yarn') {
     return candidate;
   }
   return 'npm';
@@ -225,9 +226,11 @@ export async function createProject(options: CreateProjectOptions): Promise<Crea
     ['{{packageNamespace}}', packageId],
     ['{{projectName}}', projectName],
     ['{{sparklingVersion}}', SPARKLING_VERSION],
-    ['agp = "7.4.2"', 'agp = "8.6.1"'],
+    ['agp = "7.4.2"', 'agp = "8.10.1"'],
     ['fresco = "2.3.0"', 'fresco = "3.7.0"'],
-    ['gradle-8.2-all.zip', 'gradle-8.7-bin.zip'],
+    ['gradle-8.2-all.zip', 'gradle-8.11.1-bin.zip'],
+    ['kotlin = "1.8.10"', 'kotlin = "2.2.0"'],
+    ['val forcedKotlinVersion = "1.8.10"', 'val forcedKotlinVersion = "2.2.0"'],
     ['rootProject.name = "Sparkling"', `rootProject.name = "${displayName}"`],
   ]);
 

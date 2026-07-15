@@ -7,12 +7,14 @@ import path from 'node:path';
 import {
   createProject,
   defaultPackageId,
+  detectPackageManager,
   normalizeProjectName,
   validatePackageId,
 } from 'v3222';
 
 assert.equal(normalizeProjectName('My Lynx App'), 'my-lynx-app');
 assert.equal(defaultPackageId('my-lynx-app'), 'com.example.my_lynx_app');
+assert.equal(detectPackageManager('bunx/1.3.4'), 'bun');
 assert.equal(validatePackageId('dev.example.mobile'), 'dev.example.mobile');
 assert.throws(() => validatePackageId('com.example-app'), /application ID/);
 
@@ -50,6 +52,14 @@ try {
   );
   assert.match(gradle, /applicationId = "dev\.example\.generated"/);
   assert.match(gradle, /targetSdk = 35/);
+
+  const nativeVersions = await readFile(
+    path.join(result.projectDirectory, 'android/gradle/libs.versions.toml'),
+    'utf8',
+  );
+  assert.match(nativeVersions, /agp = "8\.10\.1"/);
+  assert.match(nativeVersions, /kotlin = "2\.2\.0"/);
+  assert.match(nativeVersions, /fresco = "3\.7\.0"/);
 
   const androidBuildScript = await readFile(
     path.join(result.projectDirectory, 'scripts/build-android.mjs'),
