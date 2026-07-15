@@ -8,7 +8,7 @@ npm login --auth-type=web
 npm whoami
 
 # Check if the package name is available
-npm pm view svghub
+npm pm view v3222
 
 # Review the files that will be published
 npm pm pack --dry-run
