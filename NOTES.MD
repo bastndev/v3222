@@ -4,7 +4,6 @@
 # Login (only once)
 npm login --auth-type=web
 
-
 # Verify session
 npm whoami
 
@@ -13,7 +12,6 @@ npm pm view v3222
 
 # Review the files that will be published
 npm pm pack --dry-run
-
 
 # Publish
 npm publish
