@@ -6,6 +6,6 @@ export default defineConfig({
   fixedExtension: false,
   dts: true,
   shims: true,
-  publint: true,
-  attw: true,
+  publint: { strict: true },
+  attw: { level: 'error' },
 });

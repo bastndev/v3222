@@ -28,6 +28,13 @@ import { hello } from "v3222";
 hello("world");
 ```
 
+## Development
+
+```bash
+bun install
+bun run check
+```
+
 ## License
 
 MIT
