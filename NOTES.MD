@@ -94,8 +94,6 @@ Commit and push to `main`.
 ```bash
 git checkout main
 git pull
-git merge dev
-git push origin main
 ```
 
 ```bash
