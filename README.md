@@ -28,14 +28,6 @@ import { hello } from "v3222";
 hello("world");
 ```
 
-## Development
-
-```bash
-bun install --frozen-lockfile
-bun run check
-npm pack --dry-run
-```
-
 ## License
 
 MIT
