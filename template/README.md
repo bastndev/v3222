@@ -1,0 +1,58 @@
+# {{displayName}}
+
+An Android-first Lynx app generated with `v3222` and powered by Sparkling.
+
+## Requirements
+
+- Node.js 22 or 24
+- Android Studio with Android SDK 35
+- JDK 17
+- An Android emulator or device for native development
+
+Run the environment check first:
+
+```bash
+{{commandPrefix}} doctor
+```
+
+## Develop
+
+Start the Lynx development server and open the displayed URL or QR code in Lynx Explorer:
+
+```bash
+{{commandPrefix}} dev
+```
+
+Build, install, and launch the native Android debug app:
+
+```bash
+{{commandPrefix}} android
+```
+
+## Build Android releases
+
+Generate a release APK and Android App Bundle:
+
+```bash
+{{commandPrefix}} build:android
+```
+
+The outputs are written to:
+
+- `android/app/build/outputs/apk/release/app-release.apk` when signed, or `app-release-unsigned.apk`
+- `android/app/build/outputs/bundle/release/app-release.aab`
+
+Release artifacts are unsigned until `android/keystore.properties` is configured. Copy
+`android/keystore.properties.example`, keep the real file private, and never commit signing secrets.
+
+## Other commands
+
+```bash
+{{commandPrefix}} test
+{{commandPrefix}} typecheck
+{{commandPrefix}} format
+{{commandPrefix}} check
+```
+
+This first template intentionally includes Android only. iOS support will be added as a separate,
+tested platform template later.

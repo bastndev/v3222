@@ -1,0 +1,15 @@
+npm create sparkling-app@latest my-app
+
+- npmjs.com:
+https://www.npmjs.com/package/create-sparkling-app
+
+- repo:
+https://github.com/tiktok/sparkling
+
+- plus:
+Sitio web:
+https://tiktok.github.io/sparkling/
+
+Quick Start:
+https://tiktok.github.io/sparkling/guide/get-started/create-new-app
+
