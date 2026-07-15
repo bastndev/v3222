@@ -5,16 +5,16 @@
 npm login --auth-type=web
 
 # Verify session
-bun whoami
+npm whoami
 
 # Check if the package name is available
-bun pm view svghub
+npm pm view svghub
 
 # Review the files that will be published
-bun pm pack --dry-run
+npm pm pack --dry-run
 
 # Publish
-bun publish
+npm publish
 ```
 
 <!-- -- -- --- ---- --- TODO: Update --- --- --- -- - -->
