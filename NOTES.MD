@@ -91,7 +91,7 @@ Commit and push to `main`.
 
 ---
 
-## 3 — Publicar nuevas versiones (de aquí en adelante)
+## 3 — Publish and Deploy
 
 ```bash
 npm pm pack --dry-run    # chequeo opcional antes de taguear
