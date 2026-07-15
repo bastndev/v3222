@@ -8,10 +8,10 @@ npm login --auth-type=web
 npm whoami
 
 # Check if the package name is available
-npm pm view v3222
+npm view v3222
 
 # Review the files that will be published
-npm pm pack --dry-run
+npm pack --dry-run
 
 # Publish
 npm publish
@@ -19,33 +19,31 @@ npm publish
 
 <!-- -- -- --- ---- --- TODO: Update --- --- --- -- - -->
 
-#  Verify `NPM` package ✅ 
+# Verify `NPM` package ✅
 
-
-## 1 — npm Token **Settings** 
+## 1 — npm Token **Settings**
 
 ```shell
-  https://www.npmjs.com/package/v3222/access
-
+https://www.npmjs.com/package/v3222/access
 ```
 
-| Campo                 | Valor                    |
-| --------------------- | ------------------------ |
-| Organization or user  | `bastndev`               |
-| Repository            |  v3222                   |
-| Workflow filename     | `publish.yml`            |
-| Environment name      |  Void (----------------) |
+| Campo                | Valor                      |
+| --------------------- | ------------------------  |
+| Organization or user  | `bastndev`                |
+| Repository            | v3222                     |
+| Workflow filename     | `publish.yml`             |
+| Environment name      | Void (------------------) |
+| Allowed actions       | `Allow npm publish`       |
 
 → **Set up connection**
 
 ---
 
-## 2 — 3 — Workflow **Create**
+## 2 — Workflow **Create**
 
- ```sh
- .github/workflows/publish.yml
-
- ```
+```sh
+.github/workflows/publish.yml
+```
 
 ```yaml
 name: Publish
@@ -94,7 +92,7 @@ Commit and push to `main`.
 ## 3 — Publish and Deploy
 
 ```bash
-npm pm pack --dry-run    # chequeo opcional antes de taguear
+npm pack --dry-run    # optional check before tagging
 
 npm version patch
 git push origin main
