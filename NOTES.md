@@ -85,7 +85,7 @@ jobs:
         run: npm publish --provenance --access public
 ```
 
-Commit and push to `main`.
+Commit and push to -> `main`.
 
 ---
 
@@ -101,3 +101,8 @@ npm version patch
 git push origin main
 git push origin v0.0.2
 ```
+<br>
+
+**`Tips`**
+> Public projects
+> 
