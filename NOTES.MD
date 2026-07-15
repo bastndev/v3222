@@ -19,46 +19,33 @@ npm publish
 
 <!-- -- -- --- ---- --- TODO: Update --- --- --- -- - -->
 
-# ✅ NPM Provenance with GitHub Actions
+#  Verify `NPM` package ✅ 
 
-git tag v1.0.0 && git push origin v1.0.0
 
----
+## 1 — npm Token **Settings** 
 
-## Step 1 — npm Token
+```shell
+  https://www.npmjs.com/package/v3222/access
 
-Go to [npmjs.com/settings/~/tokens](https://www.npmjs.com/settings/~/tokens)
+```
 
-→ **Generate New Token** → **Granular Access Token**
+| Campo                 | Valor                    |
+| --------------------- | ------------------------ |
+| Organization or user  | `bastndev`               |
+| Repository            |  v3222                   |
+| Workflow filename     | `publish.yml`            |
+| Environment name      |  Void (----------------) |
 
-| Field                                  | Value                   |
-| -------------------------------------- | ----------------------- |
-| Token name                             | `github-<package-name>` |
-| Bypass two-factor authentication (2FA) | ✅ checked              |
-| Permissions                            | **Read and write**      |
-| Select packages                        | only `<package-name>`   |
-| Expiration                             | 90 days (maximum)       |
-
-→ **Generate token** → copy the `npm_...`
+→ **Set up connection**
 
 ---
 
-## Step 2 — GitHub Secret
+## 2 — 3 — Workflow **Create**
 
-Go to the repo → **Settings** → **Secrets and variables** → **Actions** → **New repository secret**
+ ```sh
+ .github/workflows/publish.yml
 
-| Field  | Value                |
-| ------ | -------------------- |
-| Name   | `NPM_TOKEN`          |
-| Secret | the copied `npm_...` |
-
-→ **Add secret**
-
----
-
-## Step 3 — Workflow
-
-Create `.github/workflows/publish.yml`:
+ ```
 
 ```yaml
 name: Publish
@@ -90,49 +77,25 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           registry-url: "https://registry.npmjs.org"
+
+      - name: Update npm
+        run: npm install -g npm@latest
 
       - name: Publish with provenance
         run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 ```
 
 Commit and push to `main`.
 
 ---
 
-## Step 4 — Publish
-
-Every time you want to release a new version:
+## 3 — Publicar nuevas versiones (de aquí en adelante)
 
 ```bash
-# From main (with changes already merged)
-git tag v1.0.0 && git push origin v1.0.0
+npm pm pack --dry-run    # chequeo opcional antes de taguear
+npm version patch        # o minor/major
+git push origin main
+git push origin vX.X.X
 ```
-
-GitHub Actions handles build + publish + provenance automatically.
-
----
-
-## Daily workflow
-
-```
-work on dev
-    ↓
-merge to main (from GitHub)
-    ↓
-git tag vX.X.X && git push origin vX.X.X
-    ↓
-✅ GitHub Actions publishes with provenance
-```
-
----
-
-## Notes
-
-- The tag must match the version in `package.json` (e.g. `v2.0.5` → `"version": "2.0.5"`)
-- If the tag already exists: `git tag -d vX.X.X && git push origin --delete vX.X.X && git tag vX.X.X && git push origin vX.X.X`
-- Token expires every 90 days — renew on npm and update the secret in GitHub
-- Each package needs its own `NPM_TOKEN` with its specific package selected
