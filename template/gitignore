@@ -1,0 +1,33 @@
+# Dependencies and generated Lynx bundles
+node_modules/
+dist/
+.sparkling/
+coverage/
+*.tsbuildinfo
+
+# Local environment and signing secrets
+.env
+.env.*
+!.env.example
+android/local.properties
+android/keystore.properties
+*.jks
+*.keystore
+
+# Native build output
+android/.gradle/
+android/app/build/
+**/*.lynx.bundle
+
+# Editors and operating systems
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-error.log*
