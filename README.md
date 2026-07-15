@@ -74,3 +74,23 @@ bun run check
 ## License
 
 MIT. Generated projects preserve Sparkling's Apache-2.0 license notice separately.
+<br>
+
+## 📄 License
+
+MIT © [Gohit X](https://gohit.xyz) — see [`LICENSE`](./LICENSE). Generated projects preserve Sparkling's Apache-2.0 license notice separately.
+
+<br>
+
+---
+
+<div align="center">
+  <p>
+    Built with <strong>Bun</strong>, <strong>TypeScript</strong>, and <strong>Web Components</strong>.
+  </p>
+  <p>
+    <a href="https://www.gohit.xyz/package/V3222">Website</a> ·
+    <a href="https://github.com/bastndev/V3222">GitHub</a> ·
+    <a href="https://www.npmjs.com/package/V3222">npm</a>
+  </p>
+</div>
