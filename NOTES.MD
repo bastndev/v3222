@@ -92,8 +92,13 @@ Commit and push to `main`.
 ## 3 — Publish and Deploy
 
 ```bash
-npm pack --dry-run    # optional check before tagging
+git checkout main
+git pull
+git merge dev
+git push origin main
+```
 
+```bash
 npm version patch
 git push origin main
 git push origin v0.0.2
