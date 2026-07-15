@@ -95,7 +95,8 @@ Commit and push to `main`.
 
 ```bash
 npm pm pack --dry-run    # chequeo opcional antes de taguear
-npm version patch        # o minor/major
+
+npm version patch
 git push origin main
-git push origin vX.X.X
+git push origin v0.0.2
 ```
