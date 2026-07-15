@@ -10,7 +10,9 @@
 
 </div>
 
-> A sandbox package for learning how npm packaging works.
+> A minimal TypeScript library package with ESM, CommonJS, and declaration outputs.
+
+Requires Node.js 22.18 or newer.
 
 ## Install
 
@@ -21,7 +23,17 @@ npm i v3222
 ## Usage
 
 ```ts
-import { something } from "v3222";
+import { hello } from "v3222";
+
+hello("world");
+```
+
+## Development
+
+```bash
+bun install --frozen-lockfile
+bun run check
+npm pack --dry-run
 ```
 
 ## License
