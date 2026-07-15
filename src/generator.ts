@@ -18,7 +18,6 @@ export type PackageManager = 'bun' | 'npm' | 'pnpm' | 'yarn';
 export interface CreateProjectOptions {
   projectDirectory: string;
   packageId: string;
-  initGit?: boolean;
   install?: boolean;
   packageManager?: PackageManager;
 }
@@ -121,8 +120,9 @@ function shouldSkipOfficialFile(relativePath: string): boolean {
 }
 
 function outputRelativePath(relativePath: string, packagePath: string): string {
-  const withNamespace = relativePath.split(OFFICIAL_PACKAGE_PATH).join(packagePath);
-  const parts = withNamespace.split(path.sep);
+  const normalized = relativePath.split(path.sep).join('/');
+  const withNamespace = normalized.split(OFFICIAL_PACKAGE_PATH).join(packagePath);
+  const parts = withNamespace.split('/');
   const fileName = parts.at(-1);
   if (fileName === 'gitignore') parts[parts.length - 1] = '.gitignore';
   return path.join(...parts);
@@ -267,7 +267,6 @@ export async function createProject(options: CreateProjectOptions): Promise<Crea
   );
 
   if (options.install !== false) installDependencies(packageManager, projectDirectory);
-  if (options.initGit === true) run('git', ['init'], projectDirectory);
 
   return { displayName, packageId, packageManager, projectDirectory, projectName };
 }

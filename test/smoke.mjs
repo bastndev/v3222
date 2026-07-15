@@ -29,7 +29,6 @@ try {
   const result = await createProject({
     projectDirectory: requestedTarget,
     packageId: 'dev.example.generated',
-    initGit: false,
     install: false,
     packageManager: 'bun',
   });
@@ -43,8 +42,10 @@ try {
   assert.equal(packageJson.name, 'generated-app');
   assert.equal(packageJson.scripts.dev, 'sparkling-app-cli dev');
   assert.equal(packageJson.scripts.doctor, 'node scripts/doctor.mjs');
-  assert.equal(packageJson.scripts.android, 'sparkling-app-cli run:android --skip-copy');
+  assert.equal(packageJson.scripts['run:android'], 'sparkling-app-cli run:android --skip-copy');
   assert.equal(packageJson.scripts['build:android'], 'node scripts/build-android.mjs');
+  assert.equal(packageJson.scripts.postinstall, undefined);
+  assert.equal(packageJson.scripts.prepare, undefined);
 
   const gradle = await readFile(
     path.join(result.projectDirectory, 'android/app/build.gradle.kts'),

@@ -26,12 +26,15 @@ Start the Lynx development server and open the displayed URL or QR code in Lynx 
 Build, install, and launch the native Android debug app:
 
 ```bash
-{{commandPrefix}} android
+{{commandPrefix}} run:android
 ```
+
+No Android build runs during project generation or dependency installation. The command above is
+the first step that invokes the native Android debug build.
 
 ## Build Android releases
 
-Generate a release APK and Android App Bundle:
+Explicitly generate a release APK and Android App Bundle:
 
 ```bash
 {{commandPrefix}} build:android
