@@ -45,8 +45,9 @@ Project generation only creates the files and installs JavaScript dependencies. 
 Gradle, install an Android app, or generate an APK/AAB.
 
 Generated projects include editable artwork under `assets/` for the Android icon, native splash
-screen, and the first Lynx screen. These assets belong to `v3222`; they are not copied from
-Sparkling's default icon.
+screen, and the first Lynx screen. Android commands synchronize the branding artwork into native
+resources before building. These assets belong to `v3222`; they are not copied from Sparkling's
+default icon.
 
 ## Generated commands
 
@@ -58,7 +59,8 @@ bun run build:android
 ```
 
 - `dev` starts the Rspeedy/Lynx preview with HMR and reports TypeScript errors during compilation.
-- `run:android` explicitly builds, installs, and launches the Android debug app.
+- `run:android` requires one authorized ADB device, builds and installs the debug app, configures
+  USB port forwarding, and fails if the installed process stops during startup.
 - `build:android` explicitly generates a release APK and AAB.
 - `doctor` checks Android tooling only.
 
@@ -69,8 +71,9 @@ gitignored `android/keystore.properties` workflow for Play Store uploads.
 
 This experiment pins Sparkling `2.1.0-rc.33` because the stable `2.0.1` CLI does not include the
 required `dev` command. The generated Android project targets API 35 and upgrades the official
-native shell to Android Gradle Plugin 8.10.1 with Kotlin 2.2. Fresco is lifted to 3.7.0 so the
-generated release does not retain the official template's non-compliant x86_64 binaries.
+native shell to Android Gradle Plugin 8.10.1 with Kotlin 2.2. It intentionally preserves Fresco
+2.3.0 because Lynx 3.7's image service is binary-incompatible with Fresco 3.x. Release artifacts
+target ARM devices, while debug builds retain emulator ABI support.
 
 The package does not need a `create-<name>` name while it is invoked with `npx` or `bunx`.
 

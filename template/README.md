@@ -31,6 +31,9 @@ Build, install, and launch the native Android debug app:
 {{commandPrefix}} run:android
 ```
 
+Connect and authorize exactly one Android device first. The command forwards the development port
+over ADB, installs the APK, launches it, and reports an error if the app stops during startup.
+
 No Android build runs during project generation or dependency installation. The command above is
 the first step that invokes the native Android debug build.
 
@@ -68,7 +71,12 @@ The generated project owns its default artwork:
 - `assets/welcome-hero.png` — first Lynx screen shown from the development QR code
 
 Replace these PNG files with your own artwork while keeping their names, or update their references
-in `app.config.ts` and `src/App.tsx`.
+in `src/App.tsx`. `run:android` and `build:android` automatically synchronize the launcher and splash
+artwork into Android resources. You can also synchronize them manually with:
+
+```bash
+{{commandPrefix}} sync:android-assets
+```
 
 This first template intentionally includes Android only. iOS support will be added as a separate,
 tested platform template later.

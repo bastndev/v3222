@@ -44,22 +44,11 @@ const config: AppConfig = {
   paths: {
     androidAssets: 'android/app/src/main/assets',
   },
-  appIcon: './assets/app-icon.png',
   router: {
     main: {
       path: './lynxPages/main',
     },
   },
-  plugin: [
-    [
-      'splash-screen',
-      {
-        backgroundColor: '#07111f',
-        image: './assets/splash-logo.png',
-        imageWidth: 220,
-      },
-    ],
-  ],
 }
 
 export default config

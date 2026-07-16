@@ -54,6 +54,9 @@ android {
         release {
             isMinifyEnabled = false
             isShrinkResources = false
+            ndk {
+                abiFilters += listOf("armeabi-v7a", "arm64-v8a")
+            }
             if (hasReleaseSigning) {
                 signingConfig = signingConfigs.getByName("release")
             }
@@ -96,6 +99,7 @@ android {
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
     implementation("com.tiktok.sparkling:sparkling:{{sparklingVersion}}") {
         exclude(group = "org.lynxsdk.lynx", module = "lynx-service-devtool")

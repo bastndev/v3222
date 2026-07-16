@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.V3222" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:navigationBarColor">@color/v3222_splash_screen_background</item>
+        <item name="android:statusBarColor">@color/v3222_splash_screen_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+
+    <style name="Theme.V3222.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/v3222_splash_screen_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/v3222_splash_logo</item>
+        <item name="postSplashScreenTheme">@style/Theme.V3222</item>
+    </style>
+</resources>

@@ -42,8 +42,9 @@ try {
   assert.equal(packageJson.name, 'generated-app');
   assert.equal(packageJson.scripts.dev, 'sparkling-app-cli dev');
   assert.equal(packageJson.scripts.doctor, 'node scripts/doctor.mjs');
-  assert.equal(packageJson.scripts['run:android'], 'sparkling-app-cli run:android --skip-copy');
+  assert.equal(packageJson.scripts['run:android'], 'node scripts/run-android.mjs');
   assert.equal(packageJson.scripts['build:android'], 'node scripts/build-android.mjs');
+  assert.equal(packageJson.scripts['sync:android-assets'], 'node scripts/sync-android-assets.mjs');
   assert.equal(packageJson.scripts.postinstall, undefined);
   assert.equal(packageJson.scripts.prepare, undefined);
   assert.equal(packageJson.devDependencies['@rsbuild/plugin-type-check'], '^1.5.0');
@@ -56,8 +57,8 @@ try {
   assert.match(appConfig, /pluginTypeCheck\(\)/);
   assert.match(appConfig, /appName: 'Generated App'/);
   assert.match(appConfig, /packageName: 'dev\.example\.generated'/);
-  assert.match(appConfig, /appIcon: '\.\/assets\/app-icon\.png'/);
-  assert.match(appConfig, /image: '\.\/assets\/splash-logo\.png'/);
+  assert.doesNotMatch(appConfig, /appIcon:/);
+  assert.doesNotMatch(appConfig, /splash-screen/);
   assert.doesNotMatch(appConfig, /\{\{/);
 
   const gradle = await readFile(
@@ -66,6 +67,8 @@ try {
   );
   assert.match(gradle, /applicationId = "dev\.example\.generated"/);
   assert.match(gradle, /targetSdk = 35/);
+  assert.match(gradle, /core-splashscreen:1\.0\.1/);
+  assert.match(gradle, /abiFilters \+= listOf\("armeabi-v7a", "arm64-v8a"\)/);
 
   const nativeVersions = await readFile(
     path.join(result.projectDirectory, 'android/gradle/libs.versions.toml'),
@@ -73,13 +76,24 @@ try {
   );
   assert.match(nativeVersions, /agp = "8\.10\.1"/);
   assert.match(nativeVersions, /kotlin = "2\.2\.0"/);
-  assert.match(nativeVersions, /fresco = "3\.7\.0"/);
+  assert.match(nativeVersions, /fresco = "2\.3\.0"/);
 
   const androidBuildScript = await readFile(
     path.join(result.projectDirectory, 'scripts/build-android.mjs'),
     'utf8',
   );
   assert.match(androidBuildScript, /bundleRelease/);
+  assert.match(androidBuildScript, /syncAndroidAssets/);
+
+  const androidRunScript = await readFile(
+    path.join(result.projectDirectory, 'scripts/run-android.mjs'),
+    'utf8',
+  );
+  assert.match(androidRunScript, /adb/);
+  assert.match(androidRunScript, /reverse/);
+  assert.match(androidRunScript, /'pm',\s*'path'/);
+  assert.match(androidRunScript, /pidof/);
+  assert.match(androidRunScript, /dev\.example\.generated/);
 
   await stat(
     path.join(
@@ -101,6 +115,74 @@ try {
   await stat(path.join(result.projectDirectory, 'assets/splash-logo.png'));
   await stat(path.join(result.projectDirectory, 'assets/welcome-hero.png'));
   await assert.rejects(stat(path.join(result.projectDirectory, 'resource')), /ENOENT/);
+
+  const sourceIcon = await readFile(path.join(result.projectDirectory, 'assets/app-icon.png'));
+  const nativeIcon = await readFile(
+    path.join(
+      result.projectDirectory,
+      'android/app/src/main/res/mipmap-nodpi/v3222_launcher.png',
+    ),
+  );
+  assert.deepEqual(nativeIcon, sourceIcon);
+
+  const sourceSplash = await readFile(path.join(result.projectDirectory, 'assets/splash-logo.png'));
+  const nativeSplash = await readFile(
+    path.join(
+      result.projectDirectory,
+      'android/app/src/main/res/drawable-nodpi/v3222_splash_logo.png',
+    ),
+  );
+  assert.deepEqual(nativeSplash, sourceSplash);
+
+  await assert.rejects(
+    stat(path.join(result.projectDirectory, 'android/app/src/main/res/mipmap-mdpi/ic_launcher.webp')),
+    /ENOENT/,
+  );
+  await assert.rejects(
+    stat(
+      path.join(
+        result.projectDirectory,
+        'android/app/src/main/res/drawable/ic_launcher_background.xml',
+      ),
+    ),
+    /ENOENT/,
+  );
+
+  const androidManifest = await readFile(
+    path.join(result.projectDirectory, 'android/app/src/main/AndroidManifest.xml'),
+    'utf8',
+  );
+  assert.match(androidManifest, /android:theme="@style\/Theme\.V3222\.Starting"/);
+  assert.match(androidManifest, /android:icon="@mipmap\/v3222_launcher"/);
+  assert.match(androidManifest, /android:roundIcon="@mipmap\/v3222_launcher_round"/);
+  assert.doesNotMatch(androidManifest, /@mipmap\/ic_launcher/);
+
+  const nativeStyles = await readFile(
+    path.join(result.projectDirectory, 'android/app/src/main/res/values/styles.xml'),
+    'utf8',
+  );
+  assert.match(nativeStyles, /Theme\.V3222\.Starting/);
+  assert.match(nativeStyles, /windowSplashScreenAnimatedIcon/);
+  assert.match(nativeStyles, /@drawable\/v3222_splash_logo/);
+
+  const splashActivity = await readFile(
+    path.join(
+      result.projectDirectory,
+      'android/app/src/main/java/dev/example/generated/SplashActivity.kt',
+    ),
+    'utf8',
+  );
+  assert.match(splashActivity, /installSplashScreen\(\)/);
+
+  const debugDevUrl = await readFile(
+    path.join(
+      result.projectDirectory,
+      'android/app/src/debug/java/dev/example/generated/DebugDevUrlSupport.kt',
+    ),
+    'utf8',
+  );
+  assert.match(debugDevUrl, /BuildConfig\.SPARKLING_DEV_SERVER_HOST/);
+  assert.match(debugDevUrl, /BuildConfig\.SPARKLING_DEV_SERVER_PORT/);
 
   const appStyles = await readFile(path.join(result.projectDirectory, 'src/App.css'), 'utf8');
   assert.match(appStyles, /\.content[\s\S]*flex-direction: column/);

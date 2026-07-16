@@ -116,7 +116,18 @@ function replaceAll(content: string, replacements: ReadonlyMap<string, string>):
 
 function shouldSkipOfficialFile(relativePath: string): boolean {
   const normalized = relativePath.split(path.sep).join('/');
-  return normalized.startsWith('app/src/androidTest/') || normalized.startsWith('app/src/test/');
+  if (normalized.startsWith('app/src/androidTest/') || normalized.startsWith('app/src/test/')) {
+    return true;
+  }
+
+  return (
+    /^app\/src\/main\/res\/mipmap-[^/]+\/ic_launcher(?:_round)?\.(?:png|webp|xml)$/u.test(
+      normalized,
+    ) ||
+    /^app\/src\/main\/res\/drawable\/ic_launcher_(?:background|foreground)\.xml$/u.test(
+      normalized,
+    )
+  );
 }
 
 function outputRelativePath(relativePath: string, packagePath: string): string {
@@ -196,6 +207,23 @@ function installDependencies(packageManager: PackageManager, cwd: string): void 
   run(packageManager, args, cwd);
 }
 
+async function syncAndroidBrandAssets(projectDirectory: string): Promise<void> {
+  const assetsRoot = path.join(projectDirectory, 'assets');
+  const androidResources = path.join(projectDirectory, 'android', 'app', 'src', 'main', 'res');
+  const mappings = [
+    ['app-icon.png', 'mipmap-nodpi/v3222_launcher.png'],
+    ['app-icon.png', 'mipmap-nodpi/v3222_launcher_round.png'],
+    ['splash-logo.png', 'drawable-nodpi/v3222_launcher_foreground.png'],
+    ['splash-logo.png', 'drawable-nodpi/v3222_splash_logo.png'],
+  ] as const;
+
+  for (const [sourceName, destination] of mappings) {
+    const destinationPath = path.join(androidResources, destination);
+    await mkdir(path.dirname(destinationPath), { recursive: true });
+    await copyFile(path.join(assetsRoot, sourceName), destinationPath);
+  }
+}
+
 async function ensureTargetDoesNotExist(projectDirectory: string): Promise<void> {
   try {
     await lstat(projectDirectory);
@@ -227,10 +255,20 @@ export async function createProject(options: CreateProjectOptions): Promise<Crea
     ['{{projectName}}', projectName],
     ['{{sparklingVersion}}', SPARKLING_VERSION],
     ['agp = "7.4.2"', 'agp = "8.10.1"'],
-    ['fresco = "2.3.0"', 'fresco = "3.7.0"'],
     ['gradle-8.2-all.zip', 'gradle-8.11.1-bin.zip'],
     ['kotlin = "1.8.10"', 'kotlin = "2.2.0"'],
     ['val forcedKotlinVersion = "1.8.10"', 'val forcedKotlinVersion = "2.2.0"'],
+    [
+      'private const val DEFAULT_MAIN_BUNDLE_SOURCE = "main.lynx.bundle"',
+      [
+        'private fun defaultMainBundleSource(): String =',
+        '    "http://${BuildConfig.SPARKLING_DEV_SERVER_HOST}:${BuildConfig.SPARKLING_DEV_SERVER_PORT}/main.lynx.bundle"',
+      ].join('\n'),
+    ],
+    [
+      'SparklingDebugTool.getDevUrl(context, DEFAULT_MAIN_BUNDLE_SOURCE)',
+      'SparklingDebugTool.getDevUrl(context, defaultMainBundleSource())',
+    ],
     ['rootProject.name = "Sparkling"', `rootProject.name = "${displayName}"`],
   ]);
 
@@ -252,9 +290,12 @@ export async function createProject(options: CreateProjectOptions): Promise<Crea
     packagePath,
     false,
   );
+  await syncAndroidBrandAssets(projectDirectory);
   await chmod(path.join(projectDirectory, 'android', 'gradlew'), 0o755);
   await chmod(path.join(projectDirectory, 'scripts', 'build-android.mjs'), 0o755);
   await chmod(path.join(projectDirectory, 'scripts', 'doctor.mjs'), 0o755);
+  await chmod(path.join(projectDirectory, 'scripts', 'run-android.mjs'), 0o755);
+  await chmod(path.join(projectDirectory, 'scripts', 'sync-android-assets.mjs'), 0o755);
 
   await copyFile(
     path.join(officialTemplateRoot, 'LICENSE'),

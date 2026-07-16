@@ -3,6 +3,8 @@ import path from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 
+import { syncAndroidAssets } from './sync-android-assets.mjs'
+
 const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '..',
@@ -27,6 +29,7 @@ function run(command, args, cwd, env = process.env) {
   }
 }
 
+await syncAndroidAssets()
 run(sparkling, ['autolink', '--platform', 'android'], projectRoot)
 run(sparkling, ['build', '--skip-copy'], projectRoot)
 run(gradle, ['assembleRelease', 'bundleRelease'], androidRoot, {
