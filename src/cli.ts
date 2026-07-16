@@ -98,8 +98,8 @@ async function promptForOptions(options: CliOptions): Promise<CliOptions> {
     options.projectDirectory ??
     unwrapPrompt(
       await prompts.text({
-        message: 'Project name',
-        initialValue: 'my-lynx-app',
+        message: 'What should we name your new project?',
+        placeholder: './my-lynx-app',
         validate(value) {
           try {
             normalizeProjectName(value ?? '');
@@ -131,16 +131,9 @@ async function promptForOptions(options: CliOptions): Promise<CliOptions> {
   return { ...options, packageId, projectDirectory };
 }
 
-function printResult(
-  result: Awaited<ReturnType<typeof createProject>>,
-  interactive: boolean,
-): void {
+function printResult(result: Awaited<ReturnType<typeof createProject>>, interactive: boolean): void {
   const runner =
-    result.packageManager === 'npm'
-      ? 'npm run'
-      : result.packageManager === 'bun'
-        ? 'bun run'
-        : result.packageManager;
+    result.packageManager === 'npm' ? 'npm run' : result.packageManager === 'bun' ? 'bun run' : result.packageManager;
   const nextSteps = `cd ${JSON.stringify(result.projectDirectory)}
 ${runner} doctor
 ${runner} dev
