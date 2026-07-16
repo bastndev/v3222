@@ -90,10 +90,27 @@ try {
     'utf8',
   );
   assert.match(androidRunScript, /adb/);
-  assert.match(androidRunScript, /reverse/);
+  assert.match(androidRunScript, /reverseMappingExists/);
+  assert.match(androidRunScript, /'reverse',\s*'--list'/);
+  assert.match(androidRunScript, /resolveDevServerPort/);
+  assert.match(androidRunScript, /loadAppConfig/);
+  assert.match(androidRunScript, /devBundleIsAvailable/);
+  assert.match(androidRunScript, /fetch\(devBundleUrl/);
   assert.match(androidRunScript, /'pm',\s*'path'/);
+  assert.match(androidRunScript, /'force-stop'/);
+  assert.match(androidRunScript, /v3222\.bundleSource/);
+  assert.match(androidRunScript, /main\.lynx\.bundle/);
+  assert.match(androidRunScript, /code\[:=\\s\]\+10203/);
   assert.match(androidRunScript, /pidof/);
   assert.match(androidRunScript, /dev\.example\.generated/);
+  assert.ok(
+    androidRunScript.lastIndexOf('configureUsbReverse(serial, devPort)') >
+      androidRunScript.indexOf("run(sparkling, ['run:android'"),
+  );
+  assert.ok(
+    androidRunScript.lastIndexOf('launchApp(serial, bundleSource)') >
+      androidRunScript.lastIndexOf('configureUsbReverse(serial, devPort)'),
+  );
 
   await stat(
     path.join(
@@ -181,8 +198,10 @@ try {
     ),
     'utf8',
   );
-  assert.match(debugDevUrl, /BuildConfig\.SPARKLING_DEV_SERVER_HOST/);
-  assert.match(debugDevUrl, /BuildConfig\.SPARKLING_DEV_SERVER_PORT/);
+  assert.match(debugDevUrl, /DEFAULT_MAIN_BUNDLE_SOURCE = "main\.lynx\.bundle"/);
+  assert.match(debugDevUrl, /getStringExtra\("v3222\.bundleSource"\)/);
+  assert.match(debugDevUrl, /runnerSource/);
+  assert.doesNotMatch(debugDevUrl, /SPARKLING_DEV_SERVER_HOST/);
 
   const appStyles = await readFile(path.join(result.projectDirectory, 'src/App.css'), 'utf8');
   assert.match(appStyles, /\.content[\s\S]*flex-direction: column/);

@@ -31,8 +31,10 @@ Build, install, and launch the native Android debug app:
 {{commandPrefix}} run:android
 ```
 
-Connect and authorize exactly one Android device first. The command forwards the development port
-over ADB, installs the APK, launches it, and reports an error if the app stops during startup.
+Connect and authorize exactly one Android device first. The command installs the APK, configures
+and verifies ADB forwarding after installation, and then force-relaunches the app. If the
+development server or tunnel becomes unavailable, it opens the packaged `main.lynx.bundle`
+instead of leaving the app on a remote-bundle error screen.
 
 No Android build runs during project generation or dependency installation. The command above is
 the first step that invokes the native Android debug build.

@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process'
+import { createRequire } from 'node:module'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -8,6 +9,11 @@ const projectRoot = path.resolve(
   path.dirname(fileURLToPath(import.meta.url)),
   '..',
 )
+const require = createRequire(import.meta.url)
+const {
+  loadAppConfig,
+  resolveDevServerPort,
+} = require('sparkling-app-cli/dist/config.js')
 const windows = process.platform === 'win32'
 const sparkling = path.join(
   projectRoot,
@@ -17,7 +23,9 @@ const sparkling = path.join(
 )
 const packageId = '{{packageId}}'
 const launchActivity = `${packageId}.SplashActivity`
-const devPort = '5969'
+const bundleSourceExtra = 'v3222.bundleSource'
+const packagedBundleSource = 'main.lynx.bundle'
+const devHost = '127.0.0.1'
 
 function execute(command, args, capture = false) {
   const result = spawnSync(command, args, {
@@ -60,6 +68,105 @@ function delay(milliseconds) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds))
 }
 
+function reverseMappingExists(serial, devPort) {
+  return output('adb', ['-s', serial, 'reverse', '--list'])
+    .split(/\r?\n/u)
+    .some((line) => {
+      const fields = line.trim().split(/\s+/u)
+      return (
+        fields.at(-2) === `tcp:${devPort}` && fields.at(-1) === `tcp:${devPort}`
+      )
+    })
+}
+
+function configureUsbReverse(serial, devPort) {
+  output('adb', ['-s', serial, 'reverse', `tcp:${devPort}`, `tcp:${devPort}`])
+  if (!reverseMappingExists(serial, devPort)) {
+    throw new Error(
+      `ADB did not retain reverse mapping tcp:${devPort} -> tcp:${devPort}.`,
+    )
+  }
+}
+
+async function devBundleIsAvailable(devBundleUrl) {
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const controller = new AbortController()
+    const timeout = setTimeout(() => controller.abort(), 1500)
+    try {
+      const response = await fetch(devBundleUrl, {
+        cache: 'no-store',
+        signal: controller.signal,
+      })
+      if (response.ok) {
+        const bundle = await response.arrayBuffer()
+        if (bundle.byteLength > 0) return true
+      }
+    } catch {
+      // The detached dev server can still be settling after the Android build.
+    } finally {
+      clearTimeout(timeout)
+    }
+    await delay(500)
+  }
+  return false
+}
+
+function recentAppLogs(serial, processId) {
+  const result = execute(
+    'adb',
+    ['-s', serial, 'logcat', `--pid=${processId}`, '-d', '-v', 'brief'],
+    true,
+  )
+  if (result.status !== 0) return ''
+  return `${result.stdout ?? ''}${result.stderr ?? ''}`
+}
+
+function findBundleFailure(logs) {
+  const failurePattern =
+    /code[:=\s]+10203|error occurred while fetching app bundle|failed to connect to \/?127\.0\.0\.1:\d+|failed to load remote bundle/iu
+  return logs.split(/\r?\n/u).find((line) => failurePattern.test(line))
+}
+
+async function launchApp(serial, bundleSource) {
+  run('adb', ['-s', serial, 'shell', 'am', 'force-stop', packageId])
+  const launchOutput = output('adb', [
+    '-s',
+    serial,
+    'shell',
+    'am',
+    'start',
+    '-W',
+    '-n',
+    `${packageId}/${launchActivity}`,
+    '--es',
+    bundleSourceExtra,
+    bundleSource,
+  ])
+  if (!/^Status:\s+ok\s*$/imu.test(launchOutput)) {
+    throw new Error(
+      `Android did not confirm a successful launch:\n${launchOutput}`,
+    )
+  }
+  console.log(launchOutput)
+  await delay(2500)
+
+  const pidResult = execute(
+    'adb',
+    ['-s', serial, 'shell', 'pidof', packageId],
+    true,
+  )
+  const processId =
+    pidResult.status === 0
+      ? (pidResult.stdout?.trim().split(/\s+/u)[0] ?? '')
+      : ''
+  if (!processId) {
+    throw new Error(`${packageId} stopped immediately after launch.`)
+  }
+
+  const bundleFailure = findBundleFailure(recentAppLogs(serial, processId))
+  return { bundleFailure, processId }
+}
+
 try {
   const devices = connectedDevices()
   const readyDevices = devices.filter(({ state }) => state === 'device')
@@ -80,9 +187,11 @@ try {
   }
 
   const [{ serial }] = readyDevices
+  const { config } = await loadAppConfig(projectRoot)
+  const devPort = String(resolveDevServerPort(config))
+  const devBundleUrl = `http://${devHost}:${devPort}/${packagedBundleSource}`
   await syncAndroidAssets()
-  run('adb', ['-s', serial, 'reverse', `tcp:${devPort}`, `tcp:${devPort}`])
-  run(sparkling, ['run:android', '--skip-copy', '--host', '127.0.0.1'])
+  run(sparkling, ['run:android', '--skip-copy', '--host', devHost])
 
   const installedPath = output('adb', [
     '-s',
@@ -96,23 +205,55 @@ try {
     throw new Error(`Android package ${packageId} was not installed.`)
   }
 
-  run('adb', [
-    '-s',
-    serial,
-    'shell',
-    'am',
-    'start',
-    '-W',
-    '-n',
-    `${packageId}/${launchActivity}`,
-  ])
-  await delay(1500)
-  const processId = output('adb', ['-s', serial, 'shell', 'pidof', packageId])
-  if (!processId) {
-    throw new Error(`${packageId} stopped immediately after launch.`)
+  let bundleSource = packagedBundleSource
+  if (await devBundleIsAvailable(devBundleUrl)) {
+    try {
+      configureUsbReverse(serial, devPort)
+      bundleSource = devBundleUrl
+    } catch (error) {
+      console.warn(
+        `USB forwarding could not be verified after installation; using the packaged bundle. ${
+          error instanceof Error ? error.message : String(error)
+        }`,
+      )
+    }
+  } else {
+    console.warn(
+      `The development bundle is not responding at ${devBundleUrl}; using the packaged bundle.`,
+    )
   }
 
-  console.log(`Android app installed and running on ${serial}.`)
+  let launchResult = await launchApp(serial, bundleSource)
+  if (bundleSource === devBundleUrl) {
+    let reverseStillActive = false
+    try {
+      reverseStillActive = reverseMappingExists(serial, devPort)
+    } catch {
+      // ADB may have restarted again between launch and verification.
+    }
+    if (!reverseStillActive || launchResult.bundleFailure) {
+      const reason = !reverseStillActive
+        ? 'the USB reverse mapping disappeared'
+        : launchResult.bundleFailure
+      console.warn(
+        `Remote bundle loading failed because ${reason}; relaunching with the packaged bundle.`,
+      )
+      bundleSource = packagedBundleSource
+      launchResult = await launchApp(serial, bundleSource)
+    }
+  }
+
+  if (launchResult.bundleFailure) {
+    throw new Error(
+      `Lynx reported a bundle loading failure after launch: ${launchResult.bundleFailure.trim()}`,
+    )
+  }
+
+  const mode =
+    bundleSource === devBundleUrl
+      ? `development bundle ${devBundleUrl}`
+      : `packaged bundle ${packagedBundleSource}`
+  console.log(`Android app installed and launched on ${serial} with ${mode}.`)
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error))
   process.exitCode = 1

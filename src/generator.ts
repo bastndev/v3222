@@ -259,15 +259,19 @@ export async function createProject(options: CreateProjectOptions): Promise<Crea
     ['kotlin = "1.8.10"', 'kotlin = "2.2.0"'],
     ['val forcedKotlinVersion = "1.8.10"', 'val forcedKotlinVersion = "2.2.0"'],
     [
-      'private const val DEFAULT_MAIN_BUNDLE_SOURCE = "main.lynx.bundle"',
+      'fun currentMainBundleSource(context: Context): String = SparklingDebugTool.getDevUrl(context, DEFAULT_MAIN_BUNDLE_SOURCE)',
       [
-        'private fun defaultMainBundleSource(): String =',
-        '    "http://${BuildConfig.SPARKLING_DEV_SERVER_HOST}:${BuildConfig.SPARKLING_DEV_SERVER_PORT}/main.lynx.bundle"',
+        'fun currentMainBundleSource(context: Context): String {',
+        '        val runnerSource =',
+        '            (context as? Activity)',
+        '                ?.intent',
+        '                ?.getStringExtra("v3222.bundleSource")',
+        '                ?.trim()',
+        '                ?.takeIf { it.isNotEmpty() }',
+        '        return runnerSource',
+        '            ?: SparklingDebugTool.getDevUrl(context, DEFAULT_MAIN_BUNDLE_SOURCE)',
+        '    }',
       ].join('\n'),
-    ],
-    [
-      'SparklingDebugTool.getDevUrl(context, DEFAULT_MAIN_BUNDLE_SOURCE)',
-      'SparklingDebugTool.getDevUrl(context, defaultMainBundleSource())',
     ],
     ['rootProject.name = "Sparkling"', `rootProject.name = "${displayName}"`],
   ]);

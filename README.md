@@ -60,7 +60,9 @@ bun run build:android
 
 - `dev` starts the Rspeedy/Lynx preview with HMR and reports TypeScript errors during compilation.
 - `run:android` requires one authorized ADB device, builds and installs the debug app, configures
-  USB port forwarding, and fails if the installed process stops during startup.
+  and verifies USB port forwarding after installation, then force-relaunches the app against the
+  development bundle. If the server or tunnel disappears, it safely falls back to the packaged
+  bundle instead of leaving the app on Lynx error `10203`.
 - `build:android` explicitly generates a release APK and AAB.
 - `doctor` checks Android tooling only.
 
