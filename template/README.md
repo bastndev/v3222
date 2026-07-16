@@ -59,5 +59,16 @@ Release artifacts are unsigned until `android/keystore.properties` is configured
 {{commandPrefix}} check
 ```
 
+## Customize the starter assets
+
+The generated project owns its default artwork:
+
+- `assets/app-icon.png` — Android application icon
+- `assets/splash-logo.png` — native splash-screen logo
+- `assets/welcome-hero.png` — first Lynx screen shown from the development QR code
+
+Replace these PNG files with your own artwork while keeping their names, or update their references
+in `app.config.ts` and `src/App.tsx`.
+
 This first template intentionally includes Android only. iOS support will be added as a separate,
 tested platform template later.

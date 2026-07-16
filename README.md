@@ -44,6 +44,10 @@ npx v3222 my-app --package-id com.example.myapp
 Project generation only creates the files and installs JavaScript dependencies. It does not invoke
 Gradle, install an Android app, or generate an APK/AAB.
 
+Generated projects include editable artwork under `assets/` for the Android icon, native splash
+screen, and the first Lynx screen. These assets belong to `v3222`; they are not copied from
+Sparkling's default icon.
+
 ## Generated commands
 
 ```bash

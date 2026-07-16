@@ -56,6 +56,8 @@ try {
   assert.match(appConfig, /pluginTypeCheck\(\)/);
   assert.match(appConfig, /appName: 'Generated App'/);
   assert.match(appConfig, /packageName: 'dev\.example\.generated'/);
+  assert.match(appConfig, /appIcon: '\.\/assets\/app-icon\.png'/);
+  assert.match(appConfig, /image: '\.\/assets\/splash-logo\.png'/);
   assert.doesNotMatch(appConfig, /\{\{/);
 
   const gradle = await readFile(
@@ -92,7 +94,16 @@ try {
 
   const appSource = await readFile(path.join(result.projectDirectory, 'src/App.tsx'), 'utf8');
   assert.match(appSource, /Generated App/);
+  assert.match(appSource, /\.\.\/assets\/welcome-hero\.png/);
   assert.doesNotMatch(appSource, /\{\{/);
+
+  await stat(path.join(result.projectDirectory, 'assets/app-icon.png'));
+  await stat(path.join(result.projectDirectory, 'assets/splash-logo.png'));
+  await stat(path.join(result.projectDirectory, 'assets/welcome-hero.png'));
+  await assert.rejects(stat(path.join(result.projectDirectory, 'resource')), /ENOENT/);
+
+  const appStyles = await readFile(path.join(result.projectDirectory, 'src/App.css'), 'utf8');
+  assert.match(appStyles, /\.content[\s\S]*flex-direction: column/);
 
   await stat(path.join(result.projectDirectory, 'src/__test__/App.test.tsx'));
   await assert.rejects(stat(path.join(result.projectDirectory, 'src/App.test.tsx')), /ENOENT/);

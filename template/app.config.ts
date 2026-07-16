@@ -44,7 +44,7 @@ const config: AppConfig = {
   paths: {
     androidAssets: 'android/app/src/main/assets',
   },
-  appIcon: './resource/app_icon.png',
+  appIcon: './assets/app-icon.png',
   router: {
     main: {
       path: './lynxPages/main',
@@ -55,8 +55,8 @@ const config: AppConfig = {
       'splash-screen',
       {
         backgroundColor: '#07111f',
-        image: './resource/app_icon.png',
-        imageWidth: 180,
+        image: './assets/splash-logo.png',
+        imageWidth: 220,
       },
     ],
   ],

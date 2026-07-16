@@ -256,11 +256,6 @@ export async function createProject(options: CreateProjectOptions): Promise<Crea
   await chmod(path.join(projectDirectory, 'scripts', 'build-android.mjs'), 0o755);
   await chmod(path.join(projectDirectory, 'scripts', 'doctor.mjs'), 0o755);
 
-  await mkdir(path.join(projectDirectory, 'resource'), { recursive: true });
-  await copyFile(
-    path.join(officialTemplateRoot, 'resource', 'app_icon.png'),
-    path.join(projectDirectory, 'resource', 'app_icon.png'),
-  );
   await copyFile(
     path.join(officialTemplateRoot, 'LICENSE'),
     path.join(projectDirectory, 'SPARKLING_LICENSE'),
