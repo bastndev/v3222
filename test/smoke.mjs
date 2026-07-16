@@ -93,6 +93,9 @@ try {
   const appSource = await readFile(path.join(result.projectDirectory, 'src/App.tsx'), 'utf8');
   assert.match(appSource, /Generated App/);
   assert.doesNotMatch(appSource, /\{\{/);
+
+  await stat(path.join(result.projectDirectory, 'src/__test__/App.test.tsx'));
+  await assert.rejects(stat(path.join(result.projectDirectory, 'src/App.test.tsx')), /ENOENT/);
 } finally {
   await rm(temporaryRoot, { recursive: true, force: true });
 }
