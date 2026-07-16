@@ -149,22 +149,26 @@ function printResult(
 ): void {
   const runner =
     result.packageManager === 'npm' ? 'npm run' : result.packageManager === 'bun' ? 'bun run' : result.packageManager;
-  const installStep = dependenciesInstalled ? '' : `${runner} install\n`;
-  const nextSteps = `cd ${JSON.stringify(result.projectDirectory)}
-${installStep}${runner} doctor
-${runner} dev
+  const installCommand = result.packageManager === 'yarn' ? 'yarn' : `${result.packageManager} install`;
+  const installStep = dependenciesInstalled ? '' : `  ${installCommand}\n`;
+  const resultMessage = `🚀 Success! Project created in ${result.projectName}
 
-Android (only when requested):
-${runner} run:android
-${runner} build:android`;
+🛠️  Next steps:
+  cd ${JSON.stringify(result.projectDirectory)}
+${installStep}  ${runner} doctor
+  ${runner} dev
+
+🤖 Android (when requested):
+  ${runner} run:android
+  ${runner} build:android`;
 
   if (interactive) {
-    prompts.note(nextSteps, 'Next steps');
-    prompts.outro(`${result.displayName} is ready. Git and Android builds were not started.`);
+    prompts.note(resultMessage, 'Result');
+    prompts.outro('Good luck out there, v3222! 🎉');
     return;
   }
 
-  console.log(`\nCreated ${result.displayName} at ${result.projectDirectory}\n\n${nextSteps}`);
+  console.log(`\n${resultMessage}\n\nGood luck out there, v3222! 🎉`);
 }
 
 async function main(): Promise<void> {
