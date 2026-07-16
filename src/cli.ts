@@ -12,7 +12,7 @@ import {
 } from './generator.js';
 
 interface CliOptions {
-  install: boolean;
+  install?: boolean;
   packageId?: string;
   projectDirectory?: string;
   showHelp: boolean;
@@ -28,6 +28,7 @@ Usage:
 
 Options:
   --package-id <id>  Android application ID, for example com.example.myapp
+  --install          Install dependencies without prompting
   --skip-install     Generate files without installing dependencies
   -h, --help         Show this help
 
@@ -41,13 +42,14 @@ function readOptionValue(args: readonly string[], index: number, option: string)
 }
 
 function parseArgs(args: readonly string[]): CliOptions {
-  const options: CliOptions = { install: true, showHelp: false };
+  const options: CliOptions = { showHelp: false };
 
   for (let index = 0; index < args.length; index += 1) {
     const argument = args[index];
     if (!argument) continue;
 
-    if (argument === '--skip-install' || argument === '--no-install') options.install = false;
+    if (argument === '--install') options.install = true;
+    else if (argument === '--skip-install' || argument === '--no-install') options.install = false;
     else if (argument === '--package-id') {
       options.packageId = readOptionValue(args, index, argument);
       index += 1;
@@ -88,6 +90,7 @@ async function promptForOptions(options: CliOptions): Promise<CliOptions> {
     const projectName = normalizeProjectName(options.projectDirectory);
     return {
       ...options,
+      install: options.install ?? false,
       packageId: options.packageId ?? defaultPackageId(projectName),
     };
   }
@@ -126,16 +129,29 @@ async function promptForOptions(options: CliOptions): Promise<CliOptions> {
         },
       }),
     );
+  const install =
+    options.install ??
+    unwrapPrompt(
+      await prompts.confirm({
+        message: 'Install dependencies now?',
+        initialValue: false,
+      }),
+    );
 
   validatePackageId(packageId);
-  return { ...options, packageId, projectDirectory };
+  return { ...options, install, packageId, projectDirectory };
 }
 
-function printResult(result: Awaited<ReturnType<typeof createProject>>, interactive: boolean): void {
+function printResult(
+  result: Awaited<ReturnType<typeof createProject>>,
+  interactive: boolean,
+  dependenciesInstalled: boolean,
+): void {
   const runner =
     result.packageManager === 'npm' ? 'npm run' : result.packageManager === 'bun' ? 'bun run' : result.packageManager;
+  const installStep = dependenciesInstalled ? '' : `${runner} install\n`;
   const nextSteps = `cd ${JSON.stringify(result.projectDirectory)}
-${runner} doctor
+${installStep}${runner} doctor
 ${runner} dev
 
 Android (only when requested):
@@ -171,7 +187,7 @@ async function main(): Promise<void> {
     packageManager: detectPackageManager(),
   });
 
-  printResult(result, interactive);
+  printResult(result, interactive, options.install === true);
 }
 
 main().catch((error: unknown) => {
