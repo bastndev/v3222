@@ -46,6 +46,17 @@ try {
   assert.equal(packageJson.scripts['build:android'], 'node scripts/build-android.mjs');
   assert.equal(packageJson.scripts.postinstall, undefined);
   assert.equal(packageJson.scripts.prepare, undefined);
+  assert.equal(packageJson.devDependencies['@rsbuild/plugin-type-check'], '^1.5.0');
+
+  const appConfig = await readFile(
+    path.join(result.projectDirectory, 'app.config.ts'),
+    'utf8',
+  );
+  assert.doesNotMatch(appConfig, /@ts-nocheck/);
+  assert.match(appConfig, /pluginTypeCheck\(\)/);
+  assert.match(appConfig, /appName: 'Generated App'/);
+  assert.match(appConfig, /packageName: 'dev\.example\.generated'/);
+  assert.doesNotMatch(appConfig, /\{\{/);
 
   const gradle = await readFile(
     path.join(result.projectDirectory, 'android/app/build.gradle.kts'),

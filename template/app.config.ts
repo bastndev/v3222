@@ -1,7 +1,7 @@
-// @ts-nocheck
 import { defineConfig } from '@lynx-js/rspeedy'
 import { pluginQRCode } from '@lynx-js/qrcode-rsbuild-plugin'
 import { pluginReactLynx } from '@lynx-js/react-rsbuild-plugin'
+import { pluginTypeCheck } from '@rsbuild/plugin-type-check'
 import type { AppConfig } from 'sparkling-app-cli'
 
 const lynxConfig = defineConfig({
@@ -23,6 +23,7 @@ const lynxConfig = defineConfig({
       },
     }),
     pluginReactLynx(),
+    pluginTypeCheck(),
   ],
 })
 

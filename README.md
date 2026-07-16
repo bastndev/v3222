@@ -53,7 +53,7 @@ bun run run:android
 bun run build:android
 ```
 
-- `dev` starts the Rspeedy/Lynx preview with HMR.
+- `dev` starts the Rspeedy/Lynx preview with HMR and reports TypeScript errors during compilation.
 - `run:android` explicitly builds, installs, and launches the Android debug app.
 - `build:android` explicitly generates a release APK and AAB.
 - `doctor` checks Android tooling only.

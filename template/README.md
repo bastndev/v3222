@@ -23,6 +23,8 @@ Start the Lynx development server and open the displayed URL or QR code in Lynx 
 {{commandPrefix}} dev
 ```
 
+Rspeedy reloads changes with HMR and reports TypeScript errors during compilation.
+
 Build, install, and launch the native Android debug app:
 
 ```bash
