@@ -1,6 +1,6 @@
 {
   "name": "v3222",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "packageManager": "bun@1.3.4",
   "description": "Create an Android-first Lynx app with live development and native release builds.",
   "type": "module",
